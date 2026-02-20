@@ -1,0 +1,1 @@
+-keep public class ua.gov.diia.search.models.**{*;}

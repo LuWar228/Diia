@@ -1,0 +1,1 @@
+-keep public class ua.gov.diia.address_search.models.**{*;}

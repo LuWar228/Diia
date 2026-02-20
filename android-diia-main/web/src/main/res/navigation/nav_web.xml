@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_web"
+    app:startDestination="@id/webF">
+
+    <action
+        android:id="@+id/actionGlobalToWebF"
+        app:destination="@id/nav_web">
+
+        <argument
+            android:name="url"
+            android:defaultValue="https://diia.gov.ua/"
+            app:argType="string" />
+
+    </action>
+
+    <fragment
+        android:id="@+id/webF"
+        android:name="ua.gov.diia.web.ui.WebF"
+        android:label="WebF">
+
+        <argument
+            android:name="url"
+            android:defaultValue="https://diia.gov.ua/"
+            app:argType="string" />
+
+    </fragment>
+
+</navigation>

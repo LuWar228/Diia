@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+<import type="android.view.View" />
+
+        <variable
+            name="vm"
+            type="ua.gov.diia.ps_criminal_cert.ui.steps.address.CriminalCertStepAddressVM" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_scrollContent"
+        android:fitsSystemWindows="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_toolbar_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/xlarge"
+            android:paddingBottom="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/twolarge"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    style="@style/BackButtonRootDesignSystem"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/header"
+                style="@style/LineExtraXText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/large"
+                android:layout_marginEnd="@dimen/ls"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="@string/criminal_cert_title"
+                app:layout_constraintBottom_toBottomOf="@+id/btn_back"
+                app:layout_constraintEnd_toStartOf="@+id/btn_context_menu"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/btn_back"
+                app:layout_constraintTop_toTopOf="@+id/btn_back" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_context_menu"
+                android:layout_width="@dimen/view_touchable_area"
+                android:layout_height="@dimen/view_touchable_area"
+                android:layout_marginEnd="@dimen/lm"
+                android:onClick="@{()-> vm.openContextMenu()}"
+                app:layout_constraintBottom_toBottomOf="@+id/btn_back"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/btn_back">
+
+                <ImageView
+                    style="@style/ContextMenuButton"
+                    android:visibility="@{(!vm.showContextMenu ) ? View.GONE : View.VISIBLE}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:srcCompat="@drawable/ic_dl_menu" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ua.gov.diia.ui_base.views.common.progress.DiiaProgressTitled
+            android:id="@+id/loadingProgress"
+            android:visibility="@{(!vm.isLoading) ? View.GONE : View.VISIBLE}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ls"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
+            tools:visibility="gone" />
+
+        <ScrollView
+            android:visibility="@{(!vm.screenContentHasBeenLoaded) ? View.GONE : View.VISIBLE}"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            android:isScrollContainer="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_toolbar_container">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/large">
+
+                <TextView
+                    android:id="@+id/tv_title_info"
+                    style="@style/LineExtraTitleText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/xlarge"
+                    android:text="@{vm.screenContent.title}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Дані для доставки" />
+
+                <ua.gov.diia.ui_base.views.common.messages.DiiaAttentionMessage
+                    android:id="@+id/attentionMessage"
+                    android:visibility="@{(vm.screenContent.attentionMessage == null) ? View.GONE : View.VISIBLE}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/xlarge"
+                    android:layout_marginTop="@dimen/xlarge"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title_info"
+                    app:msgEmoji="@{vm.screenContent.attentionMessage.icon}"
+                    app:msgText="@{vm.screenContent.attentionMessage.text}"
+                    tools:msgText="Дія не отримала документ з судовим рішенням. Будь ласка, зверніться до адміністрації суду для уточнення деталей." />
+
+
+                <include
+                    android:id="@+id/container_addressSelection"
+                    layout="@layout/fragment_address_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/xlarge"
+                    android:layout_marginTop="@dimen/xlarge"
+                    app:constructorVm="@{vm}"
+                    app:layout_constraintTop_toBottomOf="@id/attentionMessage" />
+
+                <ua.gov.diia.ui_base.views.common.progress.DiiaProgressButton
+                    android:id="@+id/btn_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/twolarge"
+                    android:layout_marginBottom="@dimen/twolarge"
+                    app:isEnabled="@{vm.enableActionButton}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_addressSelection"
+                    app:layout_constraintVertical_bias="1.0"
+                    app:onButtonClickListener="@{vm::setAddressSelectionResult}"
+                    app:title="Далі"
+                    tools:ignore="MissingConstraints" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

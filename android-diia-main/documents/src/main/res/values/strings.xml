@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tax payer card statuses -->
+    <string name="taxpayer_card_status_ok">Пройшов перевірку Державною податковою службою %1$s</string>
+    <string name="taxpayer_card_status_in_progress">Перевіряється Державною податковою службою</string>
+    <string name="taxpayer_card_status_failed">Не пройшов перевірку Державною податковою службою</string>
+
+    <string name="url_driver_e_queue">https://eq.hsc.gov.ua/</string>
+    <string name="url_driver_e_find_address">https://hsc.gov.ua/kontakti/kontakti-gsts-pidrozdiliv/</string>
+
+
+    <!--FullInfo verification refresh error-->
+    <string name="verification_code_download_fail_ua">Коди для перевірки не завантажено</string>
+    <string name="verification_code_download_fail_en">Verification codes failed to upload</string>
+    <string name="verification_code_refresh_try_again_btn_label_ua">Спробувати ще</string>
+    <string name="verification_code_refresh_try_again_btn_label_en">Try again</string>
+    <string name="loading_stub">Loading</string>
+    <string name="error_stub_emoji">🖐</string>
+    <string name="warning_stub_emoji">☝️</string>
+</resources>

@@ -1,0 +1,2 @@
+-keep public class ua.gov.diia.core.ui.dynamicdialog.ActionsConst
+-keep public class ua.gov.diia.core.models.**{*;}
