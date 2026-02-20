@@ -1,937 +1,702 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diia — Android Open Source</title>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;900&family=Noto+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --blue: #1A3CFF;
-      --yellow: #FFD700;
-      --dark: #0A0D1A;
-      --darker: #060810;
-      --card: #0F1525;
-      --border: rgba(255,255,255,0.07);
-      --text: #E8EAF6;
-      --muted: rgba(232,234,246,0.45);
-      --accent: #3D5AFE;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Дія</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg-yellow: #FFD600;
+  --black: #000000;
+  --white: #FFFFFF;
+  --green: #19BE6F;
+  --red: #CA2F28;
+}
+body {
+  background: #1a1a2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+  overflow: hidden;
+}
+.phone-frame {
+  width: 390px;
+  height: 844px;
+  background: #000;
+  border-radius: 54px;
+  position: relative;
+  box-shadow: 0 0 0 2px #333, 0 0 0 4px #1a1a1a, 0 40px 80px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.dynamic-island {
+  position: absolute;
+  top: 14px; left: 50%;
+  transform: translateX(-50%);
+  width: 126px; height: 37px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 100;
+}
+.status-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 59px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 24px 10px;
+  z-index: 50;
+  color: white;
+  font-size: 12px;
+}
+.status-time { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+.status-icons { display: flex; gap: 6px; align-items: center; }
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+.screen.active { display: flex; }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* SPLASH */
+#screen-splash {
+  background: linear-gradient(180deg, #1B3B6F 0%, #2D5FAF 50%, #FFD600 100%);
+  justify-content: center;
+  align-items: center;
+}
+.splash-logo-text { font-size: 72px; font-weight: 700; color: white; letter-spacing: -2px; line-height: 1; }
+.splash-tagline { font-size: 14px; color: rgba(255,255,255,0.8); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; text-align:center; }
+.splash-loader { position: absolute; bottom: 80px; display: flex; gap: 8px; }
+.splash-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); animation: dotPulse 1.4s ease-in-out infinite; }
+.splash-dot:nth-child(2) { animation-delay: 0.2s; }
+.splash-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse {
+  0%,80%,100% { transform: scale(0.8); background: rgba(255,255,255,0.3); }
+  40% { transform: scale(1.2); background: white; }
+}
 
-    body {
-      background: var(--darker);
-      color: var(--text);
-      font-family: 'Noto Sans', sans-serif;
-      font-weight: 300;
-      overflow-x: hidden;
-      cursor: default;
-    }
+/* LOGIN */
+#screen-login { background: linear-gradient(160deg, #1B3B6F 0%, #2A5298 60%, #1a6b8a 100%); }
+.login-content { flex: 1; display: flex; flex-direction: column; padding: 80px 24px 0; overflow-y:auto; }
+.login-logo { font-size: 52px; font-weight: 700; color: white; letter-spacing: -1px; margin-bottom: 8px; }
+.login-version { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 32px; }
+.login-title { font-size: 24px; font-weight: 500; color: white; line-height: 1.3; margin-bottom: 16px; }
+.login-desc { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 32px; }
+.login-desc a { color: var(--bg-yellow); text-decoration: underline; }
+.login-checkbox-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 32px; }
+.checkbox { width: 22px; height: 22px; min-width: 22px; border: 2px solid rgba(255,255,255,0.5); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 1px; }
+.checkbox.checked { background: var(--bg-yellow); border-color: var(--bg-yellow); }
+.checkbox.checked::after { content: ''; width: 12px; height: 7px; border-left: 2px solid black; border-bottom: 2px solid black; transform: rotate(-45deg) translate(1px, -1px); }
+.login-checkbox-text { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+.login-banks-title { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.bank-buttons { display: flex; flex-direction: column; gap: 10px; padding-bottom: 32px; }
+.bank-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; color: white; }
+.bank-btn:active { background: rgba(255,255,255,0.18); transform: scale(0.98); }
+.bank-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.bank-name { font-size: 16px; font-weight: 500; }
+.bank-subtitle { font-size: 12px; color: rgba(255,255,255,0.5); }
 
-    /* ── GRAIN OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 999;
-      opacity: 0.4;
-    }
+/* PIN */
+#screen-pin { background: linear-gradient(160deg, #1B3B6F 0%, #2A5298 100%); align-items: center; }
+.pin-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 100px; width: 100%; }
+.pin-title { font-size: 24px; font-weight: 500; color: white; text-align: center; margin-bottom: 8px; }
+.pin-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 48px; text-decoration: underline; cursor: pointer; }
+.pin-dots { display: flex; gap: 20px; margin-bottom: 60px; }
+.pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); transition: all 0.15s; }
+.pin-dot.filled { background: white; border-color: white; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+.numpad { display: grid; grid-template-columns: repeat(3, 80px); gap: 16px; }
+.num-btn { width: 80px; height: 80px; border-radius: 50%; border: none; background: rgba(255,255,255,0.08); color: white; font-size: 28px; font-weight: 300; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
+.num-btn:active { background: rgba(255,255,255,0.25); }
+.num-sub { font-size: 8px; letter-spacing: 1.5px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.num-btn.empty { background: transparent; cursor: default; }
 
-    /* ── HERO ── */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 80px 24px 60px;
-      overflow: hidden;
-    }
+/* HOME */
+#screen-home { background: linear-gradient(180deg, #1B3B6F 0%, #2A5298 40%, #C5D9E9 100%); }
+.top-nav { padding: 65px 20px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink:0; }
+.top-nav-logo { font-size: 28px; font-weight: 700; color: white; letter-spacing: -0.5px; }
+.nav-icons { display: flex; gap: 16px; }
+.nav-icon-btn { width: 40px; height: 40px; background: rgba(255,255,255,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: white; position: relative; }
+.nav-icon-btn:active { background: rgba(255,255,255,0.25); }
+.badge { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--bg-yellow); border-radius: 50%; }
+.tab-content { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.tab-content.active { display: block; }
+::-webkit-scrollbar { display: none; }
 
-    .hero-glow {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-    }
-    .glow-blue {
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(26,60,255,0.35) 0%, transparent 70%);
-      top: -100px; left: 50%;
-      transform: translateX(-50%);
-      animation: pulse 6s ease-in-out infinite;
-    }
-    .glow-yellow {
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
-      top: 40%; right: 5%;
-      animation: pulse 8s ease-in-out infinite reverse;
-    }
+/* FEED */
+.feed-greeting { padding: 4px 20px 20px; font-size: 32px; font-weight: 300; color: white; line-height: 1.2; }
+.feed-greeting b { font-weight: 700; }
+.qr-scanner-btn { margin: 0 16px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; color: white; transition: all 0.2s; }
+.qr-scanner-btn:active { background: rgba(255,255,255,0.2); }
+.feed-banner { margin: 0 16px 16px; border-radius: 20px; overflow: hidden; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: transform 0.2s; }
+.feed-banner:active { transform: scale(0.98); }
+.banner-image { width: 100%; height: 140px; background: linear-gradient(135deg, #1B3B6F 0%, #2A5298 50%, #FFD600 100%); display: flex; align-items: center; justify-content: center; font-size: 64px; }
+.banner-body { padding: 14px 16px 16px; }
+.banner-tag { font-size: 11px; color: var(--bg-yellow); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.banner-title { font-size: 16px; font-weight: 500; color: white; line-height: 1.35; }
+.banner-date { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 6px; }
+.feed-section-title { padding: 8px 20px 12px; font-size: 20px; font-weight: 500; color: white; }
+.feed-card-row { display: flex; gap: 12px; padding: 0 16px 8px; overflow-x: auto; }
+.feed-card { min-width: 150px; background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
+.feed-card:active { transform: scale(0.97); }
+.feed-card-icon { font-size: 28px; margin-bottom: 10px; }
+.feed-card-title { font-size: 14px; font-weight: 500; color: white; line-height: 1.3; }
 
-    @keyframes pulse {
-      0%,100% { transform: scale(1) translateX(-50%); opacity: 0.7; }
-      50% { transform: scale(1.15) translateX(-50%); opacity: 1; }
-    }
-    .glow-yellow { animation-name: pulse2; }
-    @keyframes pulse2 {
-      0%,100% { transform: scale(1); opacity: 0.6; }
-      50% { transform: scale(1.2); opacity: 1; }
-    }
+/* DOCS */
+.docs-header { padding: 4px 20px 20px; }
+.docs-title { font-size: 28px; font-weight: 500; color: white; margin-bottom: 4px; }
+.docs-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); }
+.doc-card { margin: 0 16px 16px; border-radius: 20px; overflow: hidden; cursor: pointer; transition: transform 0.2s; position: relative; }
+.doc-card:active { transform: scale(0.98); }
+.doc-card-inner { padding: 24px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+.doc-card-passport { background: linear-gradient(135deg, #1B3B6F 0%, #2A5298 50%, #1a6b8a 100%); }
+.doc-card-driver { background: linear-gradient(135deg, #2C3E50 0%, #3D5A6B 50%, #4a7080 100%); }
+.doc-card-inn { background: linear-gradient(135deg, #1a3a2a 0%, #2d6b45 100%); }
+.doc-card-ua-flag { display: flex; gap: 3px; margin-bottom: 4px; }
+.flag-stripe-sm { width: 24px; height: 3px; border-radius: 2px; }
+.flag-blue { background: #1B3B6F; border: 1px solid rgba(255,255,255,0.3); }
+.flag-yellow { background: #FFD600; }
+.doc-trident { font-size: 24px; position: absolute; top: 20px; right: 20px; opacity: 0.3; }
+.doc-type { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.doc-chip { width: 28px; height: 20px; background: linear-gradient(135deg, #D4AF37 0%, #F5D270 50%, #D4AF37 100%); border-radius: 4px; margin-bottom: 8px; }
+.doc-name { font-size: 22px; font-weight: 700; color: white; line-height: 1.1; }
+.doc-name-en { font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 0.5px; }
+.doc-number { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.8); font-family: 'Courier New', monospace; letter-spacing: 1px; }
+.doc-valid { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.doc-photo { position: absolute; bottom: 20px; right: 20px; width: 68px; height: 80px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.doc-qr-badge { position: absolute; bottom: 16px; right: 16px; width: 44px; height: 44px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 4px; }
+.qr-mini { display: grid; grid-template-columns: repeat(7, 5px); gap: 1px; }
+.qr-cell { width: 5px; height: 5px; background: black; }
+.qr-cell.w { background: white; }
 
-    .flag-stripe {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 32px;
-      animation: fadeDown 0.8s ease both;
-    }
-    .flag-stripe span {
-      display: block;
-      width: 40px; height: 6px;
-      border-radius: 3px;
-    }
-    .flag-stripe span:nth-child(1) { background: var(--blue); }
-    .flag-stripe span:nth-child(2) { background: var(--yellow); }
+/* SERVICES */
+.services-header { padding: 4px 20px 20px; }
+.services-title { font-size: 28px; font-weight: 500; color: white; margin-bottom: 16px; }
+.search-bar { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 13px 16px; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.5); font-size: 15px; }
+.services-grid { padding: 0 16px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.service-cat { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 18px; padding: 20px 16px; cursor: pointer; transition: all 0.2s; }
+.service-cat:active { transform: scale(0.97); background: rgba(255,255,255,0.18); }
+.service-cat-icon { font-size: 32px; margin-bottom: 10px; }
+.service-cat-name { font-size: 14px; font-weight: 500; color: white; line-height: 1.3; }
+.service-cat-count { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
 
-    h1 {
-      font-family: 'Unbounded', sans-serif;
-      font-size: clamp(3.5rem, 10vw, 8rem);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      background: linear-gradient(135deg, #fff 30%, var(--yellow) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: fadeDown 0.9s 0.1s ease both;
-    }
+/* MENU */
+.menu-header { padding: 4px 20px 24px; }
+.menu-avatar-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.menu-avatar { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 30px; border: 2px solid rgba(255,255,255,0.3); }
+.menu-user-name { font-size: 20px; font-weight: 500; color: white; }
+.menu-user-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.menu-section { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; overflow: hidden; margin: 0 16px 16px; }
+.menu-item { display: flex; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.08); transition: background 0.2s; }
+.menu-item:last-child { border-bottom: none; }
+.menu-item:active { background: rgba(255,255,255,0.08); }
+.menu-item-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.menu-item-text { flex: 1; font-size: 16px; color: white; }
+.menu-item-badge { font-size: 12px; background: rgba(255,214,0,0.2); color: var(--bg-yellow); padding: 3px 9px; border-radius: 100px; }
+.menu-item-arrow { color: rgba(255,255,255,0.3); font-size: 18px; }
+.menu-logout { margin: 0 16px 24px; background: rgba(202,47,40,0.12); border: 1px solid rgba(202,47,40,0.25); border-radius: 14px; padding: 16px; text-align: center; color: #FF6B6B; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+.menu-logout:active { background: rgba(202,47,40,0.25); }
 
-    .hero-sub {
-      margin-top: 16px;
-      font-size: 1.1rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 400;
-      animation: fadeDown 1s 0.2s ease both;
-    }
+/* BOTTOM BAR */
+.bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 82px; background: var(--black); display: flex; padding-bottom: 14px; z-index: 10; flex-shrink:0; }
+.tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; background: none; border: none; padding-top: 10px; }
+.tab-label { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.3px; }
+.tab-btn.active .tab-label { color: var(--bg-yellow); }
 
-    .hero-desc {
-      max-width: 560px;
-      margin: 28px auto 0;
-      font-size: 1.05rem;
-      line-height: 1.8;
-      color: rgba(232,234,246,0.65);
-      animation: fadeDown 1s 0.3s ease both;
-    }
+/* OVERLAY */
+.overlay { position: absolute; inset: 0; z-index: 150; display: none; flex-direction: column; }
+.overlay.active { display: flex; }
+.overlay-header { padding: 65px 20px 20px; display: flex; align-items: center; gap: 12px; flex-shrink:0; }
+.overlay-back { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: white; font-size: 20px; }
+.overlay-title { font-size: 18px; font-weight: 500; color: white; }
+.doc-detail-card { margin: 0 16px; border-radius: 24px; overflow: hidden; flex-shrink: 0; }
+.doc-actions { display: flex; gap: 10px; padding: 20px 16px; }
+.doc-action-btn { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; color: white; font-size: 11px; transition: all 0.2s; }
+.doc-action-btn:active { background: rgba(255,255,255,0.2); }
+.doc-action-icon { font-size: 20px; }
+.doc-info-section { background: rgba(255,255,255,0.06); border-radius: 18px; margin: 0 16px 16px; overflow: hidden; }
+.doc-info-row { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 2px; }
+.doc-info-row:last-child { border-bottom: none; }
+.doc-info-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+.doc-info-value { font-size: 15px; color: white; }
 
-    .stats-row {
-      display: flex;
-      gap: 48px;
-      margin-top: 56px;
-      animation: fadeUp 1s 0.4s ease both;
-    }
-    .stat {
-      text-align: center;
-    }
-    .stat-num {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 2.4rem;
-      font-weight: 600;
-      color: var(--yellow);
-    }
-    .stat-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .scroll-hint {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      animation: fadeUp 1s 0.8s ease both;
-    }
-    .scroll-line {
-      width: 1px; height: 40px;
-      background: linear-gradient(to bottom, var(--yellow), transparent);
-      animation: scrollLine 2s ease-in-out infinite;
-    }
-    @keyframes scrollLine {
-      0%,100% { transform: scaleY(1); transform-origin: top; }
-      50% { transform: scaleY(0.3); }
-    }
-
-    /* ── SECTIONS ── */
-    section {
-      padding: 80px 24px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--yellow);
-      margin-bottom: 16px;
-    }
-
-    h2 {
-      font-family: 'Unbounded', sans-serif;
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      font-weight: 600;
-      line-height: 1.15;
-      margin-bottom: 48px;
-    }
-
-    /* ── MODULES GRID ── */
-    .modules-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    .module-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      cursor: pointer;
-      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .module-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(26,60,255,0.08) 0%, transparent 60%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .module-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(26,60,255,0.5);
-      box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(26,60,255,0.2);
-    }
-    .module-card:hover::before { opacity: 1; }
-    .module-card.active {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 1px var(--blue), 0 16px 40px rgba(26,60,255,0.2);
-    }
-
-    .module-icon {
-      font-size: 2rem;
-      margin-bottom: 14px;
-    }
-    .module-name {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      margin-bottom: 8px;
-      color: #fff;
-    }
-    .module-desc {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .module-tag {
-      display: inline-block;
-      margin-top: 14px;
-      padding: 3px 10px;
-      border-radius: 100px;
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .tag-ui { background: rgba(26,60,255,0.2); color: #7B96FF; }
-    .tag-auth { background: rgba(255,215,0,0.15); color: #FFD700; }
-    .tag-data { background: rgba(0,200,120,0.15); color: #00C87A; }
-    .tag-core { background: rgba(255,100,100,0.15); color: #FF7070; }
-    .tag-feature { background: rgba(180,100,255,0.15); color: #C878FF; }
-
-    /* ── DETAIL PANEL ── */
-    #detail-panel {
-      position: fixed;
-      right: 0; top: 0; bottom: 0;
-      width: 380px;
-      background: linear-gradient(160deg, #101728 0%, #080C18 100%);
-      border-left: 1px solid var(--border);
-      padding: 40px 28px;
-      transform: translateX(100%);
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 100;
-      overflow-y: auto;
-    }
-    #detail-panel.open { transform: translateX(0); }
-
-    .panel-close {
-      position: absolute;
-      top: 20px; right: 20px;
-      background: var(--border);
-      border: none;
-      color: var(--text);
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s;
-    }
-    .panel-close:hover { background: rgba(255,255,255,0.12); }
-
-    .panel-module-icon { font-size: 3rem; margin-bottom: 16px; }
-    .panel-title {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .panel-desc {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.7;
-      margin-bottom: 28px;
-    }
-
-    .file-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 10px;
-      font-size: 0.78rem;
-      font-family: 'Courier New', monospace;
-      color: var(--muted);
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-    .file-item:hover {
-      background: rgba(26,60,255,0.1);
-      border-color: rgba(26,60,255,0.3);
-      color: #fff;
-    }
-    .file-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .dot-kt { background: #C878FF; }
-    .dot-xml { background: #3D9EFF; }
-    .dot-gradle { background: #FFB347; }
-
-    .panel-section-title {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--yellow);
-      margin: 24px 0 10px;
-      font-family: 'Unbounded', sans-serif;
-    }
-
-    /* ── ARCH SECTION ── */
-    .arch-diagram {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      position: relative;
-      overflow: hidden;
-    }
-    .arch-diagram::before {
-      content: '';
-      position: absolute;
-      top: -80px; left: 50%;
-      transform: translateX(-50%);
-      width: 500px; height: 200px;
-      background: radial-gradient(ellipse, rgba(26,60,255,0.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .arch-layers {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .arch-layer {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      transition: border-color 0.3s, background 0.3s;
-    }
-    .arch-layer:hover {
-      border-color: rgba(26,60,255,0.4);
-      background: rgba(26,60,255,0.06);
-    }
-    .arch-layer-icon { font-size: 1.4rem; }
-    .arch-layer-name {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #fff;
-      min-width: 140px;
-    }
-    .arch-layer-detail {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .arch-arrow {
-      text-align: center;
-      color: var(--blue);
-      font-size: 1.2rem;
-      opacity: 0.5;
-    }
-
-    /* ── TABS SECTION ── */
-    .tabs-visual {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-    .tab-bar {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 18px 8px;
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-family: 'Unbounded', sans-serif;
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      transition: color 0.2s, background 0.2s;
-      border-bottom: 2px solid transparent;
-    }
-    .tab-btn.active {
-      color: var(--yellow);
-      background: rgba(255,215,0,0.05);
-      border-bottom-color: var(--yellow);
-    }
-    .tab-btn:hover:not(.active) { color: var(--text); }
-    .tab-emoji { font-size: 1.4rem; }
-
-    .tab-content {
-      display: none;
-      padding: 32px;
-      animation: fadeIn 0.3s ease;
-    }
-    .tab-content.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-    .tab-content h3 {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-    .tab-content p {
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 0.9rem;
-      margin-bottom: 16px;
-    }
-    .feature-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .feature-chip {
-      padding: 6px 14px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 60px 24px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-    footer a { color: var(--yellow); text-decoration: none; }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Overlay */
-    #overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
-      z-index: 99;
-    }
-    #overlay.show { display: block; }
-
-    @media (max-width: 600px) {
-      .stats-row { gap: 24px; }
-      .stat-num { font-size: 1.8rem; }
-      #detail-panel { width: 100%; }
-    }
-  </style>
+/* NOTIF BANNER */
+.notif-banner { position: absolute; top: 70px; left: 16px; right: 16px; background: rgba(30,40,60,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; z-index: 200; transform: translateY(-20px); opacity: 0; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); pointer-events: none; }
+.notif-banner.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.notif-app-icon { width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #1B3B6F, #2A5298); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.notif-title { font-size: 13px; font-weight: 600; color: white; }
+.notif-body { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; line-height: 1.4; }
+@keyframes scanLine { from { top: 10px; } to { top: calc(100% - 12px); } }
+</style>
 </head>
 <body>
+<div class="phone-frame">
+  <div class="dynamic-island"></div>
 
-<div id="overlay" onclick="closePanel()"></div>
-
-<!-- DETAIL PANEL -->
-<div id="detail-panel">
-  <button class="panel-close" onclick="closePanel()">✕</button>
-  <div id="panel-content"></div>
-</div>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-glow glow-blue"></div>
-  <div class="hero-glow glow-yellow"></div>
-  <div class="flag-stripe">
-    <span></span><span></span>
-  </div>
-  <h1>Diia</h1>
-  <p class="hero-sub">Android Open Source · Ministry of Digital Transformation of Ukraine</p>
-  <p class="hero-desc">
-    Дія — застосунок з доступом до цифрових документів громадян та державних послуг. Написаний на Kotlin з Jetpack Compose.
-  </p>
-  <div class="stats-row">
-    <div class="stat">
-      <div class="stat-num">1739</div>
-      <div class="stat-label">Kotlin файлів</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">24</div>
-      <div class="stat-label">Модулів</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">4</div>
-      <div class="stat-label">Вкладки застосунку</div>
+  <div class="notif-banner" id="notif-banner">
+    <div class="notif-app-icon">🇺🇦</div>
+    <div>
+      <div class="notif-title">Дія</div>
+      <div class="notif-body">Нове повідомлення від Пенсійного фонду</div>
     </div>
   </div>
-  <div class="scroll-hint">
-    <span>Scroll</span>
-    <div class="scroll-line"></div>
+
+  <div class="status-bar">
+    <div class="status-time" id="status-time">9:41</div>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1" opacity="0.4"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity="0.6"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8 3C10 3 11.8 3.8 13.1 5.1L14.2 4C12.6 2.3 10.4 1.2 8 1.2S3.4 2.3 1.8 4L2.9 5.1C4.2 3.8 6 3 8 3z" opacity="0.4"/><path d="M8 5.5C9.4 5.5 10.6 6.1 11.5 7L12.6 5.9C11.4 4.8 9.8 4.1 8 4.1S4.6 4.8 3.4 5.9L4.5 7C5.4 6.1 6.6 5.5 8 5.5z" opacity="0.7"/><circle cx="8" cy="10" r="1.5"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="22" height="10" rx="3" stroke="white" stroke-width="1" fill="none" opacity="0.4"/><rect x="23" y="3.5" width="2" height="5" rx="1" fill="white" opacity="0.4"/><rect x="1.5" y="2.5" width="18" height="7" rx="2" fill="white"/></svg>
+    </div>
   </div>
-</div>
 
-<!-- MODULES SECTION -->
-<section>
-  <p class="section-label">Архітектура</p>
-  <h2>Модулі проекту</h2>
-  <div class="modules-grid" id="modules-grid"></div>
-</section>
+  <!-- SPLASH -->
+  <div class="screen active" id="screen-splash">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="splash-logo-text">Дія</div>
+      <div class="splash-tagline">Держава у смартфоні</div>
+    </div>
+    <div class="splash-loader">
+      <div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div>
+    </div>
+  </div>
 
-<!-- ARCHITECTURE SECTION -->
-<section>
-  <p class="section-label">Структура</p>
-  <h2>Шари застосунку</h2>
-  <div class="arch-diagram">
-    <div class="arch-layers">
-      <div class="arch-layer">
-        <div class="arch-layer-icon">📱</div>
-        <div class="arch-layer-name">UI Layer</div>
-        <div class="arch-layer-detail">Jetpack Compose + Fragments · HomeF, FeedC, DocGalleryFCompose</div>
+  <!-- LOGIN -->
+  <div class="screen" id="screen-login">
+    <div class="login-content">
+      <div class="login-logo">Дія</div>
+      <div class="login-version">Версія Дії: 5.0.0</div>
+      <div class="login-title">Авторизація</div>
+      <div class="login-desc">
+        Увійдіть за допомогою BankID Національного банку України, використовуючи свій інтернет-банкінг, або за допомогою NFC-чипу в біометричних документах.<br><br>
+        Для авторизації ознайомтеся зі змістом. <a href="#" onclick="return false">Повідомлення про обробку персональних даних</a>
       </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer">
-        <div class="arch-layer-icon">🧠</div>
-        <div class="arch-layer-name">ViewModel</div>
-        <div class="arch-layer-detail">HomeVM, FeedVM, BankAuthVM · StateFlow + LiveData</div>
+      <div class="login-checkbox-row">
+        <div class="checkbox" id="login-checkbox" onclick="toggleCheckbox()"></div>
+        <div class="login-checkbox-text">Я ознайомився зі змістом Повідомлення про обробку персональних даних.</div>
       </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer">
-        <div class="arch-layer-icon">🔗</div>
-        <div class="arch-layer-name">Navigation</div>
-        <div class="arch-layer-detail">Jetpack Navigation · NavHost, NavController, sealed classes</div>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer">
-        <div class="arch-layer-icon">💉</div>
-        <div class="arch-layer-name">DI</div>
-        <div class="arch-layer-detail">Hilt · @AndroidEntryPoint, @Inject, Modules</div>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer">
-        <div class="arch-layer-icon">🌐</div>
-        <div class="arch-layer-name">Network</div>
-        <div class="arch-layer-detail">Retrofit API interfaces · ApiFeed, ApiBankId, ApiPublicService</div>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer">
-        <div class="arch-layer-icon">💾</div>
-        <div class="arch-layer-name">Storage</div>
-        <div class="arch-layer-detail">diia_storage module · Room / SharedPreferences</div>
+      <div class="login-banks-title">Авторизуватися через:</div>
+      <div class="bank-buttons">
+        <div class="bank-btn" onclick="goToPin()">
+          <div class="bank-icon" style="background:#1B1B1B">🏦</div>
+          <div><div class="bank-name">BankID НБУ</div><div class="bank-subtitle">Через інтернет-банкінг</div></div>
+          <div style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:20px">›</div>
+        </div>
+        <div class="bank-btn" onclick="goToPin()">
+          <div class="bank-icon" style="background:#005BAC;color:white;font-size:13px;font-weight:700">24</div>
+          <div><div class="bank-name">Приват24</div><div class="bank-subtitle">ПриватБанк</div></div>
+          <div style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:20px">›</div>
+        </div>
+        <div class="bank-btn" onclick="goToPin()">
+          <div class="bank-icon" style="background:#1A1A1A;font-size:14px;font-weight:700;color:white">mono</div>
+          <div><div class="bank-name">monobank</div><div class="bank-subtitle">Авторизація через mono</div></div>
+          <div style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:20px">›</div>
+        </div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- TABS SECTION -->
-<section>
-  <p class="section-label">UI</p>
-  <h2>Вкладки застосунку</h2>
-  <div class="tabs-visual">
-    <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('feed', this)">
-        <span class="tab-emoji">📰</span>Стрічка
-      </button>
-      <button class="tab-btn" onclick="switchTab('docs', this)">
-        <span class="tab-emoji">🪪</span>Документи
-      </button>
-      <button class="tab-btn" onclick="switchTab('services', this)">
-        <span class="tab-emoji">⚙️</span>Послуги
-      </button>
-      <button class="tab-btn" onclick="switchTab('menu', this)">
-        <span class="tab-emoji">☰</span>Меню
-      </button>
+  <!-- PIN -->
+  <div class="screen" id="screen-pin">
+    <div class="pin-content">
+      <div class="pin-title">Код для входу</div>
+      <div class="pin-subtitle">Не пам'ятаю код для входу</div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot" id="d0"></div>
+        <div class="pin-dot" id="d1"></div>
+        <div class="pin-dot" id="d2"></div>
+        <div class="pin-dot" id="d3"></div>
+      </div>
+      <div class="numpad">
+        <button class="num-btn" onclick="pinEnter(1)">1</button>
+        <button class="num-btn" onclick="pinEnter(2)">2<div class="num-sub">ABC</div></button>
+        <button class="num-btn" onclick="pinEnter(3)">3<div class="num-sub">DEF</div></button>
+        <button class="num-btn" onclick="pinEnter(4)">4<div class="num-sub">GHI</div></button>
+        <button class="num-btn" onclick="pinEnter(5)">5<div class="num-sub">JKL</div></button>
+        <button class="num-btn" onclick="pinEnter(6)">6<div class="num-sub">MNO</div></button>
+        <button class="num-btn" onclick="pinEnter(7)">7<div class="num-sub">PQRS</div></button>
+        <button class="num-btn" onclick="pinEnter(8)">8<div class="num-sub">TUV</div></button>
+        <button class="num-btn" onclick="pinEnter(9)">9<div class="num-sub">WXYZ</div></button>
+        <button class="num-btn empty"></button>
+        <button class="num-btn" onclick="pinEnter(0)">0</button>
+        <button class="num-btn" onclick="pinDelete()" style="font-size:22px">⌫</button>
+      </div>
+      <div style="margin-top:32px;font-size:12px;color:rgba(255,255,255,0.3)">Введіть PIN: 1234</div>
     </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="screen-home">
+    <div class="top-nav">
+      <div class="top-nav-logo">Дія</div>
+      <div class="nav-icons">
+        <button class="nav-icon-btn" onclick="showNotif()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="badge"></div>
+        </button>
+        <button class="nav-icon-btn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- FEED -->
     <div class="tab-content active" id="tab-feed">
-      <h3>Стрічка новин (Feed)</h3>
-      <p>Головний екран із персоналізованими новинами, сповіщеннями від держави та актуальними подіями. Підтримує deep links та QR-сканер.</p>
-      <div class="feature-list">
-        <span class="feature-chip">FeedVM.kt</span>
-        <span class="feature-chip">FeedC.kt</span>
-        <span class="feature-chip">FeedGraphBuilder.kt</span>
-        <span class="feature-chip">ApiFeed.kt</span>
-        <span class="feature-chip">PullNotifications</span>
-        <span class="feature-chip">Deep Links</span>
+      <div class="feed-greeting">Привіт,<br><b>Іване 👋</b></div>
+      <div class="qr-scanner-btn" onclick="openOverlay('qr')">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+        <div><div style="font-size:16px">Сканувати QR-код</div><div style="font-size:12px;color:rgba(255,255,255,0.5)">Перевірка документів</div></div>
+        <svg style="margin-left:auto;opacity:0.4" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
+      <div class="feed-banner">
+        <div class="banner-image">🇺🇦</div>
+        <div class="banner-body">
+          <div class="banner-tag">Важливо</div>
+          <div class="banner-title">Незламність. Мапа пунктів незламності та укриттів</div>
+          <div class="banner-date">21 лютого 2026</div>
+        </div>
+      </div>
+      <div class="feed-section-title">Послуги</div>
+      <div class="feed-card-row">
+        <div class="feed-card"><div class="feed-card-icon">⚖️</div><div class="feed-card-title">Витяг про несудимість</div></div>
+        <div class="feed-card"><div class="feed-card-icon">🚗</div><div class="feed-card-title">Заміна посвідчення</div></div>
+        <div class="feed-card"><div class="feed-card-icon">🏠</div><div class="feed-card-title">Місце проживання</div></div>
+        <div class="feed-card"><div class="feed-card-icon">💰</div><div class="feed-card-title">Військові облігації</div></div>
+      </div>
+      <div style="height:100px"></div>
     </div>
+
+    <!-- DOCS -->
     <div class="tab-content" id="tab-docs">
-      <h3>Цифрові документи</h3>
-      <p>Галерея документів з анімованим фоном. Підтримує посвідчення водія, паспорт, ІПН та інші. Реалізовано стекування документів та зміна порядку.</p>
-      <div class="feature-list">
-        <span class="feature-chip">DocGalleryFCompose.kt</span>
-        <span class="feature-chip">doc_driver_license</span>
-        <span class="feature-chip">Stack docs</span>
-        <span class="feature-chip">PDF export</span>
-        <span class="feature-chip">QR / Barcode</span>
-        <span class="feature-chip">NFC scanning</span>
+      <div class="docs-header"><div class="docs-title">Документи</div><div class="docs-subtitle">3 документи</div></div>
+      <div class="doc-card" onclick="openOverlay('passport')">
+        <div class="doc-card-inner doc-card-passport" style="min-height:210px">
+          <div>
+            <div class="doc-card-ua-flag"><div class="flag-stripe-sm flag-blue"></div><div class="flag-stripe-sm flag-yellow"></div></div>
+            <div class="doc-type">UKRAINE · ПАСПОРТ</div>
+            <div class="doc-chip"></div>
+            <div class="doc-name">Іван<br>Петренко</div>
+            <div class="doc-name-en">Ivan Petrenko</div>
+          </div>
+          <div><div class="doc-number">АА 123456</div><div class="doc-valid">Дійсний до: 14.03.2030</div></div>
+          <div class="doc-trident">⚜</div>
+          <div class="doc-photo">👤</div>
+        </div>
       </div>
+      <div class="doc-card" onclick="openOverlay('driver')">
+        <div class="doc-card-inner doc-card-driver" style="min-height:190px">
+          <div>
+            <div class="doc-card-ua-flag"><div class="flag-stripe-sm flag-blue"></div><div class="flag-stripe-sm flag-yellow"></div></div>
+            <div class="doc-type">ПОСВІДЧЕННЯ ВОДІЯ</div>
+            <div class="doc-name" style="font-size:18px">Петренко І.В.</div>
+          </div>
+          <div><div class="doc-number">АА-BB 123456</div><div class="doc-valid">Кат.: B, C · Дійсне до: 2028</div></div>
+          <div class="doc-trident">⚜</div>
+          <div class="doc-qr-badge"><div class="qr-mini"><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell w"></div><div class="qr-cell"></div></div></div>
+        </div>
+      </div>
+      <div class="doc-card" onclick="openOverlay('inn')">
+        <div class="doc-card-inner doc-card-inn" style="min-height:140px">
+          <div><div class="doc-type">ІДЕНТИФІКАЦІЙНИЙ КОД</div><div class="doc-name" style="font-size:28px;letter-spacing:2px">3456789012</div></div>
+          <div><div style="font-size:12px;color:rgba(255,255,255,0.5)">Петренко Іван Васильович</div><div class="doc-valid">✓ Пройшов перевірку ДПС</div></div>
+        </div>
+      </div>
+      <div style="height:100px"></div>
     </div>
+
+    <!-- SERVICES -->
     <div class="tab-content" id="tab-services">
-      <h3>Державні послуги</h3>
-      <p>Каталог публічних сервісів із категоріями. Пошук послуг, навігація до окремих сервісів, інтеграція з вебвью.</p>
-      <div class="feature-list">
-        <span class="feature-chip">publicservice module</span>
-        <span class="feature-chip">PublicServicesCategoriesNavGraph</span>
-        <span class="feature-chip">ps_criminal_cert</span>
-        <span class="feature-chip">Search</span>
-        <span class="feature-chip">WebView</span>
+      <div class="services-header">
+        <div class="services-title">Послуги</div>
+        <div class="search-bar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Пошук
+        </div>
       </div>
+      <div class="services-grid">
+        <div class="service-cat"><div class="service-cat-icon">👤</div><div class="service-cat-name">Реєстрація</div><div class="service-cat-count">12 послуг</div></div>
+        <div class="service-cat"><div class="service-cat-icon">🚗</div><div class="service-cat-name">Транспорт</div><div class="service-cat-count">8 послуг</div></div>
+        <div class="service-cat"><div class="service-cat-icon">🏥</div><div class="service-cat-name">Медицина</div><div class="service-cat-count">15 послуг</div></div>
+        <div class="service-cat"><div class="service-cat-icon">🎓</div><div class="service-cat-name">Освіта</div><div class="service-cat-count">9 послуг</div></div>
+        <div class="service-cat"><div class="service-cat-icon">💰</div><div class="service-cat-name">Фінанси</div><div class="service-cat-count">6 послуг</div></div>
+        <div class="service-cat"><div class="service-cat-icon">⚖️</div><div class="service-cat-name">Юстиція</div><div class="service-cat-count">11 послуг</div></div>
+        <div class="service-cat"><div class="service-cat-icon">🏠</div><div class="service-cat-name">Нерухомість</div><div class="service-cat-count">7 послуг</div></div>
+        <div class="service-cat"><div class="service-cat-icon">🛡️</div><div class="service-cat-name">Соціальний захист</div><div class="service-cat-count">10 послуг</div></div>
+      </div>
+      <div style="height:100px"></div>
     </div>
+
+    <!-- MENU -->
     <div class="tab-content" id="tab-menu">
-      <h3>Меню та налаштування</h3>
-      <p>Профіль, налаштування, FAQ, сесії, підпис, сповіщення та вихід з акаунту. Підтримка DiiaID та безпечних транзакцій.</p>
-      <div class="feature-list">
-        <span class="feature-chip">menu module</span>
-        <span class="feature-chip">settings module</span>
-        <span class="feature-chip">FAQ</span>
-        <span class="feature-chip">DiiaID</span>
-        <span class="feature-chip">Sign history</span>
-        <span class="feature-chip">Biometric</span>
+      <div class="menu-header">
+        <div class="menu-avatar-row">
+          <div class="menu-avatar">👤</div>
+          <div><div class="menu-user-name">Іван Петренко</div><div class="menu-user-sub">ID: 3456789012</div></div>
+        </div>
+      </div>
+      <div class="menu-section">
+        <div class="menu-item"><div class="menu-item-icon">🔔</div><div class="menu-item-text">Сповіщення</div><div class="menu-item-badge">3</div><div class="menu-item-arrow">›</div></div>
+        <div class="menu-item"><div class="menu-item-icon">✍️</div><div class="menu-item-text">Дія.Підпис</div><div class="menu-item-arrow">›</div></div>
+        <div class="menu-item"><div class="menu-item-icon">📋</div><div class="menu-item-text">Історія підписань</div><div class="menu-item-arrow">›</div></div>
+      </div>
+      <div class="menu-section">
+        <div class="menu-item"><div class="menu-item-icon">🔒</div><div class="menu-item-text">Змінити код для входу</div><div class="menu-item-arrow">›</div></div>
+        <div class="menu-item"><div class="menu-item-icon">👆</div><div class="menu-item-text">Біометрична авторизація</div><div class="menu-item-arrow">›</div></div>
+        <div class="menu-item"><div class="menu-item-icon">📱</div><div class="menu-item-text">Сесії</div><div class="menu-item-arrow">›</div></div>
+        <div class="menu-item"><div class="menu-item-icon">🔃</div><div class="menu-item-text">Змінити порядок документів</div><div class="menu-item-arrow">›</div></div>
+      </div>
+      <div class="menu-section">
+        <div class="menu-item"><div class="menu-item-icon">❓</div><div class="menu-item-text">Питання та відповіді</div><div class="menu-item-arrow">›</div></div>
+        <div class="menu-item"><div class="menu-item-icon">🆘</div><div class="menu-item-text">Служба підтримки</div><div class="menu-item-arrow">›</div></div>
+        <div class="menu-item"><div class="menu-item-icon">💬</div><div class="menu-item-text">Розповісти друзям</div><div class="menu-item-arrow">›</div></div>
+      </div>
+      <div class="menu-logout" onclick="logout()">Вийти</div>
+      <div style="height:100px"></div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar">
+      <button class="tab-btn active" id="tab-btn-feed" onclick="switchTab('feed')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 2H13C15.828 2 17.243 2 18.121 2.879C19 3.757 19 5.172 19 8V20C19 21.104 19.896 22 21 22H7C4.172 22 2.757 22 1.879 21.121C1 20.243 1 18.828 1 16V8C1 5.172 1 3.757 1.879 2.879C2.757 2 4.172 2 7 2Z" id="feed-icon-path" stroke="#FFD600" stroke-width="1.5"/><path d="M19 20V13H21C22.105 13 23 13.895 23 15V20C23 21.105 22.105 22 21 22C19.895 22 19 21.105 19 20Z" stroke="#FFD600" stroke-width="1.5"/><rect x="4.5" y="16.5" width="10" height="1.5" rx="0.5" fill="#FFD600"/><rect x="5" y="6" width="10" height="7" rx="1" stroke="#FFD600" stroke-width="1.5"/></svg>
+        <span class="tab-label" style="color:#FFD600">Стрічка</span>
+      </button>
+      <button class="tab-btn" id="tab-btn-docs" onclick="switchTab('docs')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 2H13C15.828 2 17.243 2 18.121 2.879C19 3.757 19 5.172 19 8V20C19 21.104 19.896 22 21 22H7C4.172 22 2.757 22 1.879 21.121C1 20.243 1 18.828 1 16V8C1 5.172 1 3.757 1.879 2.879C2.757 2 4.172 2 7 2Z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><path d="M19 20V13H21C22.105 13 23 13.895 23 15V20C23 21.105 22.105 22 21 22C19.895 22 19 21.105 19 20Z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><rect x="4.5" y="16.5" width="10" height="1.5" rx="0.5" fill="rgba(255,255,255,0.4)"/><rect x="5" y="6" width="10" height="7" rx="1" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/></svg>
+        <span class="tab-label">Документи</span>
+      </button>
+      <button class="tab-btn" id="tab-btn-services" onclick="switchTab('services')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><path d="M14 5L7.4 13H11.1L9.3 18.6L16 10.5H12.8L14 5Z" fill="rgba(255,255,255,0.4)"/></svg>
+        <span class="tab-label">Послуги</span>
+      </button>
+      <button class="tab-btn" id="tab-btn-menu" onclick="switchTab('menu')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span class="tab-label">Меню</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- OVERLAY: PASSPORT -->
+  <div class="overlay" id="overlay-passport">
+    <div style="background:linear-gradient(160deg,#1B3B6F,#2A5298);flex:1;display:flex;flex-direction:column;overflow-y:auto">
+      <div class="overlay-header">
+        <button class="overlay-back" onclick="closeOverlay('passport')">‹</button>
+        <div class="overlay-title">Паспорт громадянина України</div>
+      </div>
+      <div class="doc-detail-card">
+        <div class="doc-card-inner doc-card-passport" style="min-height:230px;border-radius:24px">
+          <div>
+            <div class="doc-card-ua-flag"><div class="flag-stripe-sm flag-blue"></div><div class="flag-stripe-sm flag-yellow"></div></div>
+            <div class="doc-type">UKRAINE · ПАСПОРТ</div>
+            <div class="doc-chip"></div>
+            <div class="doc-name">Іван<br>Петренко</div>
+            <div class="doc-name-en">Ivan Petrenko</div>
+          </div>
+          <div><div class="doc-number">АА 123456</div><div class="doc-valid">Дійсний до: 14.03.2030</div></div>
+          <div class="doc-trident">⚜</div>
+          <div class="doc-photo">👤</div>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <div class="doc-action-btn"><div class="doc-action-icon">📤</div>Поділитися</div>
+        <div class="doc-action-btn"><div class="doc-action-icon">🔍</div>Перевірити</div>
+        <div class="doc-action-btn"><div class="doc-action-icon">📄</div>PDF</div>
+        <div class="doc-action-btn"><div class="doc-action-icon">⭐</div>Оцінити</div>
+      </div>
+      <div class="doc-info-section">
+        <div class="doc-info-row"><div class="doc-info-label">Прізвище</div><div class="doc-info-value">ПЕТРЕНКО / PETRENKO</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Ім'я</div><div class="doc-info-value">ІВАН / IVAN</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">По батькові</div><div class="doc-info-value">ВАСИЛЬОВИЧ</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Дата народження</div><div class="doc-info-value">01.01.1990</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Стать</div><div class="doc-info-value">Чоловіча / Male</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Номер документа</div><div class="doc-info-value" style="font-family:'Courier New',monospace;letter-spacing:1px">АА 123456</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Дійсний до</div><div class="doc-info-value">14.03.2030</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Орган видачі</div><div class="doc-info-value">1234 · ДМС України</div></div>
+      </div>
+      <div style="height:40px"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: DRIVER -->
+  <div class="overlay" id="overlay-driver">
+    <div style="background:linear-gradient(160deg,#2C3E50,#3D5A6B);flex:1;display:flex;flex-direction:column;overflow-y:auto">
+      <div class="overlay-header">
+        <button class="overlay-back" onclick="closeOverlay('driver')">‹</button>
+        <div class="overlay-title">Посвідчення водія</div>
+      </div>
+      <div class="doc-detail-card">
+        <div class="doc-card-inner doc-card-driver" style="min-height:200px;border-radius:24px">
+          <div>
+            <div class="doc-card-ua-flag"><div class="flag-stripe-sm flag-blue"></div><div class="flag-stripe-sm flag-yellow"></div></div>
+            <div class="doc-type">ПОСВІДЧЕННЯ ВОДІЯ</div>
+            <div class="doc-name" style="font-size:18px">Петренко І.В.</div>
+          </div>
+          <div><div class="doc-number">АА-BB 123456</div><div class="doc-valid">Кат.: B, C · Дійсне до: 2028</div></div>
+          <div class="doc-trident">⚜</div>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <div class="doc-action-btn"><div class="doc-action-icon">📤</div>Поділитися</div>
+        <div class="doc-action-btn"><div class="doc-action-icon">🔍</div>Перевірити</div>
+        <div class="doc-action-btn"><div class="doc-action-icon">🚗</div>Замінити</div>
+      </div>
+      <div class="doc-info-section">
+        <div class="doc-info-row"><div class="doc-info-label">Прізвище та ім'я</div><div class="doc-info-value">Петренко Іван Васильович</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Дата народження</div><div class="doc-info-value">01.01.1990</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Категорії</div><div class="doc-info-value">B, C</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Номер посвідчення</div><div class="doc-info-value" style="font-family:'Courier New',monospace">АА-BB 123456</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Дійсне до</div><div class="doc-info-value">2028</div></div>
+      </div>
+      <div style="height:40px"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: INN -->
+  <div class="overlay" id="overlay-inn">
+    <div style="background:linear-gradient(160deg,#1a3a2a,#2d6b45);flex:1;display:flex;flex-direction:column;overflow-y:auto">
+      <div class="overlay-header">
+        <button class="overlay-back" onclick="closeOverlay('inn')">‹</button>
+        <div class="overlay-title">Ідентифікаційний код</div>
+      </div>
+      <div class="doc-detail-card">
+        <div class="doc-card-inner doc-card-inn" style="min-height:160px;border-radius:24px">
+          <div><div class="doc-type">ІДЕНТИФІКАЦІЙНИЙ КОД</div><div class="doc-name" style="font-size:30px;letter-spacing:3px">3456789012</div></div>
+          <div><div style="font-size:12px;color:rgba(255,255,255,0.5)">Петренко Іван Васильович</div><div class="doc-valid">✓ Пройшов перевірку ДПС</div></div>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <div class="doc-action-btn" onclick="copyToast()"><div class="doc-action-icon">📋</div>Скопіювати</div>
+        <div class="doc-action-btn"><div class="doc-action-icon">📤</div>Поділитися</div>
+      </div>
+      <div class="doc-info-section">
+        <div class="doc-info-row"><div class="doc-info-label">ІПН</div><div class="doc-info-value" style="font-family:'Courier New',monospace;font-size:20px;letter-spacing:2px">3456789012</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Власник</div><div class="doc-info-value">Петренко Іван Васильович</div></div>
+        <div class="doc-info-row"><div class="doc-info-label">Статус</div><div class="doc-info-value" style="color:#19BE6F">✓ Пройшов перевірку Державною податковою службою</div></div>
+      </div>
+      <div style="height:40px"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: QR -->
+  <div class="overlay" id="overlay-qr">
+    <div style="background:#000;flex:1;display:flex;flex-direction:column">
+      <div class="overlay-header" style="background:#000">
+        <button class="overlay-back" onclick="closeOverlay('qr')">✕</button>
+        <div class="overlay-title">Сканувати QR-код</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+        <div style="width:260px;height:260px;position:relative;margin-bottom:32px">
+          <div style="width:100%;height:100%;background:rgba(255,255,255,0.05);border-radius:16px;overflow:hidden;position:relative">
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 20px,rgba(0,255,100,0.03) 20px,rgba(0,255,100,0.03) 21px)"></div>
+            <div style="position:absolute;top:0;left:0;width:40px;height:40px;border-top:3px solid #19BE6F;border-left:3px solid #19BE6F;border-radius:4px 0 0 0"></div>
+            <div style="position:absolute;top:0;right:0;width:40px;height:40px;border-top:3px solid #19BE6F;border-right:3px solid #19BE6F;border-radius:0 4px 0 0"></div>
+            <div style="position:absolute;bottom:0;left:0;width:40px;height:40px;border-bottom:3px solid #19BE6F;border-left:3px solid #19BE6F;border-radius:0 0 0 4px"></div>
+            <div style="position:absolute;bottom:0;right:0;width:40px;height:40px;border-bottom:3px solid #19BE6F;border-right:3px solid #19BE6F;border-radius:0 0 4px 0"></div>
+            <div style="position:absolute;top:10px;left:10px;right:10px;height:2px;background:linear-gradient(90deg,transparent,#19BE6F,transparent);animation:scanLine 2s linear infinite"></div>
+          </div>
+        </div>
+        <div style="font-size:16px;color:rgba(255,255,255,0.7);text-align:center;line-height:1.5">Наведіть камеру на QR-код</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.3);margin-top:8px">Перевірка документів Дія</div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-  <p>Diia Open Source · <a href="https://github.com/diia-open-source/android-diia" target="_blank">GitHub</a> · <a href="https://diia.gov.ua" target="_blank">diia.gov.ua</a></p>
-  <p style="margin-top:8px;">Міністерство цифрової трансформації України 🇺🇦</p>
-</footer>
+  <!-- TOAST -->
+  <div id="toast" style="position:absolute;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,0.85);color:white;padding:12px 24px;border-radius:100px;font-size:14px;font-weight:500;white-space:nowrap;opacity:0;transition:all 0.3s;pointer-events:none;z-index:300">
+    Номер скопійовано
+  </div>
+</div>
 
 <script>
-  const modules = [
-    {
-      id: 'home', icon: '🏠', name: 'home', tag: 'ui', tagLabel: 'UI',
-      desc: 'Головний фрагмент з навігацією між вкладками, анімованим фоном (Lottie) та BottomBar.',
-      files: [
-        { name: 'HomeF.kt', type: 'kt' }, { name: 'HomeVM.kt', type: 'kt' },
-        { name: 'HomeActions.kt', type: 'kt' }, { name: 'HomeScreenComposeMapper.kt', type: 'kt' }
-      ],
-      details: 'Compose-based Fragment що хостить NavHost з 4 графами навігації. Анімований градієнтний фон через Lottie. Scaffold + BottomBar + WindowInsets.'
-    },
-    {
-      id: 'feed', icon: '📰', name: 'feed', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Стрічка персоналізованих новин, push/pull сповіщення, QR-сканер.',
-      files: [
-        { name: 'FeedVM.kt', type: 'kt' }, { name: 'FeedC.kt', type: 'kt' },
-        { name: 'FeedGraphBuilder.kt', type: 'kt' }, { name: 'ApiFeed.kt', type: 'kt' }
-      ],
-      details: 'ViewModel зі StateFlow, lazy load статей, підтримка deep links та pull notifications. Навігація через sealed class FeedHomeNavigation.'
-    },
-    {
-      id: 'documents', icon: '🪪', name: 'documents', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Галерея цифрових документів зі стекуванням, QR/Barcode та PDF-експортом.',
-      files: [
-        { name: 'DocGalleryFCompose.kt', type: 'kt' }, { name: 'DocGalleryC.kt', type: 'kt' },
-        { name: 'DocVM.kt', type: 'kt' }, { name: 'RootDocVm.kt', type: 'kt' }
-      ],
-      details: 'Compose UI з пагінацією документів, ViewPager2, анімаціями. Підтримка стеків (один тип — кілька документів), зміна порядку, контекстне меню.'
-    },
-    {
-      id: 'auth_bankid', icon: '🏦', name: 'auth_bankid', tag: 'auth', tagLabel: 'Auth',
-      desc: 'Авторизація через BankID НБУ: вибір банку, підключення через Privat24 і monobank.',
-      files: [
-        { name: 'BankSelectionF.kt', type: 'kt' }, { name: 'BankAuthVM.kt', type: 'kt' },
-        { name: 'ApiBankId.kt', type: 'kt' }, { name: 'BankIdModule.kt', type: 'kt' }
-      ],
-      details: 'Список банків з пошуком, OAuth-flow через WebView. VerificationMethodBankId, VerificationMethodPrivat, VerificationMethodMono.'
-    },
-    {
-      id: 'login', icon: '🔐', name: 'login', tag: 'auth', tagLabel: 'Auth',
-      desc: 'Екран входу з вибором методу авторизації (BankID та ін.).',
-      files: [
-        { name: 'LoginF.kt', type: 'kt' }
-      ],
-      details: 'Compose-based login screen з переліком доступних методів авторизації. Інтегрується з bank_id та biometric модулями.'
-    },
-    {
-      id: 'pin', icon: '🔢', name: 'pin', tag: 'auth', tagLabel: 'Auth',
-      desc: 'PIN-код та біометрична аутентифікація для захисту додатку.',
-      files: [],
-      details: 'Числова клавіатура для введення PIN-коду. Інтеграція з biometric модулем для fingerprint/face unlock.'
-    },
-    {
-      id: 'biometric', icon: '👆', name: 'biometric', tag: 'auth', tagLabel: 'Auth',
-      desc: 'Біометрична автентифікація (відбиток пальця, обличчя).',
-      files: [],
-      details: 'Делегат WithBiometric для використання AndroidX Biometric API в різних частинах застосунку.'
-    },
-    {
-      id: 'ui_base', icon: '🎨', name: 'ui_base', tag: 'ui', tagLabel: 'UI',
-      desc: '212+ Compose-компонентів: атоми, молекули, організми. Design System Diia.',
-      files: [
-        { name: 'atom/', type: 'xml' }, { name: 'molecule/', type: 'xml' },
-        { name: 'organism/', type: 'xml' }, { name: 'DiiaResourceIcon.kt', type: 'kt' }
-      ],
-      details: 'Повна дизайн-система з компонентами Button, Input, Checkbox, Radio, Progress, Pager, Status тощо. Всі компоненти написані на Jetpack Compose.'
-    },
-    {
-      id: 'publicservice', icon: '⚙️', name: 'publicservice', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Каталог державних послуг із категоріями та пошуком.',
-      files: [
-        { name: 'PublicServicesCategoriesNavGraph.kt', type: 'kt' }
-      ],
-      details: 'Категорії послуг, перехід до окремих сервісів, пошук, інтеграція з WebView для веб-based послуг.'
-    },
-    {
-      id: 'menu', icon: '☰', name: 'menu', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Профіль, налаштування, FAQ, DiiaID, підпис, сесії.',
-      files: [
-        { name: 'ScreenMenuRoute.kt', type: 'kt' }, { name: 'menuNavGraph.kt', type: 'kt' }
-      ],
-      details: 'Sealed class MenuHomeNavigation описує всі можливі переходи з меню. Підтримка виходу, DiiaID, sign history.'
-    },
-    {
-      id: 'notifications', icon: '🔔', name: 'notifications', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Push та pull сповіщення від держави.',
-      files: [],
-      details: 'Канал сповіщень "Повідомлення", обробка PullNotificationItemSelection, навігація за типом ресурсу.'
-    },
-    {
-      id: 'scanner', icon: '📸', name: 'scanner', tag: 'feature', tagLabel: 'Feature',
-      desc: 'QR-код та MRZ сканер для документів та послуг.',
-      files: [],
-      details: 'Camera-based QR scanning, MRZ scanning для машиночитаємих зон паспортів. Інтегрований у Feed та Documents.'
-    },
-    {
-      id: 'core', icon: '⚙️', name: 'core', tag: 'core', tagLabel: 'Core',
-      desc: 'Базові моделі, утиліти, делегати та контракти для всіх модулів.',
-      files: [
-        { name: 'models/', type: 'kt' }, { name: 'util/', type: 'kt' },
-        { name: 'ConsumableString.kt', type: 'kt' }
-      ],
-      details: 'ConsumableString, BackStackEvent, WithPermission, WithCrashlytics делегати. Базові навігаційні контракти.'
-    },
-    {
-      id: 'diia_storage', icon: '💾', name: 'diia_storage', tag: 'data', tagLabel: 'Data',
-      desc: 'Локальне сховище: Room, SharedPreferences та абстракції над ними.',
-      files: [],
-      details: 'Персистентне зберігання токенів, налаштувань, кешу документів.'
-    },
-    {
-      id: 'analytics', icon: '📊', name: 'analytics', tag: 'core', tagLabel: 'Core',
-      desc: 'Аналітика подій та краш-репортинг (Crashlytics).',
-      files: [],
-      details: 'WithCrashlytics делегат для логування помилок. Трекінг user-events у різних модулях.'
-    },
-    {
-      id: 'payment', icon: '💳', name: 'payment', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Оплата послуг: Visa, Prostir, інші платіжні методи.',
-      files: [
-        { name: 'ic_payment_logo_visa.xml', type: 'xml' },
-        { name: 'ic_card_type_prostir.xml', type: 'xml' }
-      ],
-      details: 'Екран оплати з підтримкою різних платіжних систем. Інтегрований у publicservice flow.'
-    },
-    {
-      id: 'verification', icon: '✅', name: 'verification', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Верифікація особи через документи та NFC.',
-      files: [],
-      details: 'NFC читання документів з чіпом, MRZ parsing. Підтримка різних методів верифікації.'
-    },
-    {
-      id: 'settings', icon: '🛠️', name: 'settings', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Налаштування застосунку: мова, сповіщення, безпека.',
-      files: [],
-      details: 'Екрани налаштувань з перемикачами, посилання на сесії, можливість share with friends.'
-    },
-    {
-      id: 'faq', icon: '❓', name: 'faq', tag: 'feature', tagLabel: 'Feature',
-      desc: 'FAQ — питання та відповіді для користувачів.',
-      files: [],
-      details: 'Список поширених питань, пошук, accordion компоненти.'
-    },
-    {
-      id: 'search', icon: '🔍', name: 'search', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Пошук документів, послуг та контенту.',
-      files: [],
-      details: 'Глобальний пошук з підтримкою кирилиці. Фільтрація та підсвічування результатів.'
-    },
-    {
-      id: 'web', icon: '🌐', name: 'web', tag: 'feature', tagLabel: 'Feature',
-      desc: 'WebView для рендерингу веб-послуг та зовнішніх посилань.',
-      files: [],
-      details: 'Вбудований браузер для послуг, що надаються через веб-інтерфейс. Підтримка JavaScript bridge.'
-    },
-    {
-      id: 'doc_driver_license', icon: '🚗', name: 'doc_driver_license', tag: 'data', tagLabel: 'Data',
-      desc: 'Посвідчення водія: відображення, верифікація, QR-код.',
-      files: [],
-      details: 'Окремий модуль для водійського посвідчення. Compose UI карточки з QR/Barcode.'
-    },
-    {
-      id: 'address_search', icon: '📍', name: 'address_search', tag: 'feature', tagLabel: 'Feature',
-      desc: 'Пошук і вибір адреси для державних послуг.',
-      files: [],
-      details: 'Autocomplete пошук адрес для форм. Інтегрований у реєстраційні потоки.'
-    },
-    {
-      id: 'opensource', icon: '📦', name: 'opensource', tag: 'core', tagLabel: 'Core',
-      desc: 'Точка входу застосунку: MainActivity, Hilt application, Gplay/Huawei variants.',
-      files: [
-        { name: 'MainActivity.kt', type: 'kt' }, { name: 'MainActivityVM.kt', type: 'kt' },
-        { name: 'VendorActivity.kt', type: 'kt' }
-      ],
-      details: '@HiltAndroidApp Application клас, MainActivity з NavController, підтримка двох флейворів: Google Play і Huawei AppGallery.'
-    }
-  ];
+  function updateTime() {
+    const n = new Date();
+    document.getElementById('status-time').textContent = n.getHours() + ':' + String(n.getMinutes()).padStart(2,'0');
+  }
+  updateTime();
+  setInterval(updateTime, 10000);
 
-  const tagColors = { ui: 'tag-ui', auth: 'tag-auth', data: 'tag-data', core: 'tag-core', feature: 'tag-feature' };
+  setTimeout(() => showScreen('login'), 2200);
 
-  const grid = document.getElementById('modules-grid');
-  modules.forEach(m => {
-    const card = document.createElement('div');
-    card.className = 'module-card';
-    card.innerHTML = `
-      <div class="module-icon">${m.icon}</div>
-      <div class="module-name">${m.name}</div>
-      <div class="module-desc">${m.desc}</div>
-      <span class="module-tag ${tagColors[m.tag]}">${m.tagLabel}</span>
-    `;
-    card.addEventListener('click', () => openPanel(m, card));
-    grid.appendChild(card);
-  });
-
-  let activeCard = null;
-
-  function openPanel(m, card) {
-    if (activeCard) activeCard.classList.remove('active');
-    activeCard = card;
-    card.classList.add('active');
-
-    const fileHtml = m.files.length > 0 ? `
-      <div class="panel-section-title">Ключові файли</div>
-      <div class="file-list">
-        ${m.files.map(f => `
-          <div class="file-item">
-            <span class="file-dot dot-${f.type}"></span>
-            ${f.name}
-          </div>
-        `).join('')}
-      </div>
-    ` : '';
-
-    document.getElementById('panel-content').innerHTML = `
-      <div class="panel-module-icon">${m.icon}</div>
-      <div class="panel-title">${m.name}</div>
-      <div class="panel-desc">${m.details}</div>
-      ${fileHtml}
-      <div class="panel-section-title">Категорія</div>
-      <span class="module-tag ${tagColors[m.tag]}">${m.tagLabel}</span>
-    `;
-
-    document.getElementById('detail-panel').classList.add('open');
-    document.getElementById('overlay').classList.add('show');
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
   }
 
-  function closePanel() {
-    document.getElementById('detail-panel').classList.remove('open');
-    document.getElementById('overlay').classList.remove('show');
-    if (activeCard) {
-      activeCard.classList.remove('active');
-      activeCard = null;
-    }
+  let checked = false;
+  function toggleCheckbox() {
+    checked = !checked;
+    document.getElementById('login-checkbox').classList.toggle('checked', checked);
   }
 
-  function switchTab(id, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  function goToPin() { showScreen('pin'); }
+
+  let pin = '';
+  function pinEnter(n) {
+    if (pin.length >= 4) return;
+    pin += n;
+    updateDots();
+    if (pin.length === 4) {
+      setTimeout(() => {
+        if (pin === '1234') { showScreen('home'); setTimeout(showNotif, 1500); }
+        else {
+          for(let i=0;i<4;i++){const d=document.getElementById('d'+i);d.style.background='#CA2F28';d.style.borderColor='#CA2F28';d.style.animation='shake 0.4s ease';}
+          setTimeout(() => { pin = ''; updateDots(); for(let i=0;i<4;i++){const d=document.getElementById('d'+i);d.style.background='';d.style.borderColor='';d.style.animation='';} }, 600);
+        }
+      }, 150);
+    }
+  }
+  function pinDelete() { pin = pin.slice(0,-1); updateDots(); }
+  function updateDots() {
+    for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled', i < pin.length);
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.querySelector('.tab-label').style.color = 'rgba(255,255,255,0.4)'; });
+    document.getElementById('tab-' + tab).classList.add('active');
+    const btn = document.getElementById('tab-btn-' + tab);
     btn.classList.add('active');
-    document.getElementById('tab-' + id).classList.add('active');
+    btn.querySelector('.tab-label').style.color = '#FFD600';
+    // update svg strokes
+    document.querySelectorAll('.tab-btn svg *').forEach(el => {
+      if(el.getAttribute('stroke') && el.getAttribute('stroke') !== 'none') el.setAttribute('stroke','rgba(255,255,255,0.4)');
+      if(el.getAttribute('fill') && el.getAttribute('fill') !== 'none') el.setAttribute('fill','rgba(255,255,255,0.4)');
+    });
+    btn.querySelectorAll('svg *').forEach(el => {
+      if(el.getAttribute('stroke') && el.getAttribute('stroke') !== 'none') el.setAttribute('stroke','#FFD600');
+      if(el.getAttribute('fill') && el.getAttribute('fill') !== 'none') el.setAttribute('fill','#FFD600');
+    });
   }
 
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+  let notifTimer;
+  function showNotif() {
+    const b = document.getElementById('notif-banner');
+    b.classList.add('show');
+    clearTimeout(notifTimer);
+    notifTimer = setTimeout(() => b.classList.remove('show'), 4000);
+  }
+
+  function openOverlay(id) { document.getElementById('overlay-' + id).classList.add('active'); }
+  function closeOverlay(id) { document.getElementById('overlay-' + id).classList.remove('active'); }
+
+  function copyToast() {
+    const t = document.getElementById('toast');
+    t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2000);
+  }
+
+  function logout() { pin = ''; updateDots(); showScreen('login'); }
+
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('screen-pin').classList.contains('active')) return;
+    if (e.key >= '0' && e.key <= '9') pinEnter(parseInt(e.key));
+    if (e.key === 'Backspace') pinDelete();
+  });
 </script>
 </body>
 </html>
