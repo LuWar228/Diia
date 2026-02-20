@@ -1,11 +1,937 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Diia App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diia — Android Open Source</title>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;900&family=Noto+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #1A3CFF;
+      --yellow: #FFD700;
+      --dark: #0A0D1A;
+      --darker: #060810;
+      --card: #0F1525;
+      --border: rgba(255,255,255,0.07);
+      --text: #E8EAF6;
+      --muted: rgba(232,234,246,0.45);
+      --accent: #3D5AFE;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--darker);
+      color: var(--text);
+      font-family: 'Noto Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .glow-blue {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(26,60,255,0.35) 0%, transparent 70%);
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      animation: pulse 6s ease-in-out infinite;
+    }
+    .glow-yellow {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
+      top: 40%; right: 5%;
+      animation: pulse 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1) translateX(-50%); opacity: 0.7; }
+      50% { transform: scale(1.15) translateX(-50%); opacity: 1; }
+    }
+    .glow-yellow { animation-name: pulse2; }
+    @keyframes pulse2 {
+      0%,100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .flag-stripe {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 32px;
+      animation: fadeDown 0.8s ease both;
+    }
+    .flag-stripe span {
+      display: block;
+      width: 40px; height: 6px;
+      border-radius: 3px;
+    }
+    .flag-stripe span:nth-child(1) { background: var(--blue); }
+    .flag-stripe span:nth-child(2) { background: var(--yellow); }
+
+    h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 30%, var(--yellow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeDown 0.9s 0.1s ease both;
+    }
+
+    .hero-sub {
+      margin-top: 16px;
+      font-size: 1.1rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 400;
+      animation: fadeDown 1s 0.2s ease both;
+    }
+
+    .hero-desc {
+      max-width: 560px;
+      margin: 28px auto 0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: rgba(232,234,246,0.65);
+      animation: fadeDown 1s 0.3s ease both;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 48px;
+      margin-top: 56px;
+      animation: fadeUp 1s 0.4s ease both;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: var(--yellow);
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      animation: fadeUp 1s 0.8s ease both;
+    }
+    .scroll-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--yellow), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0%,100% { transform: scaleY(1); transform-origin: top; }
+      50% { transform: scaleY(0.3); }
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 80px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 48px;
+    }
+
+    /* ── MODULES GRID ── */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .module-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      cursor: pointer;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .module-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(26,60,255,0.08) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .module-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(26,60,255,0.5);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(26,60,255,0.2);
+    }
+    .module-card:hover::before { opacity: 1; }
+    .module-card.active {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 1px var(--blue), 0 16px 40px rgba(26,60,255,0.2);
+    }
+
+    .module-icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+    }
+    .module-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .module-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .module-tag {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .tag-ui { background: rgba(26,60,255,0.2); color: #7B96FF; }
+    .tag-auth { background: rgba(255,215,0,0.15); color: #FFD700; }
+    .tag-data { background: rgba(0,200,120,0.15); color: #00C87A; }
+    .tag-core { background: rgba(255,100,100,0.15); color: #FF7070; }
+    .tag-feature { background: rgba(180,100,255,0.15); color: #C878FF; }
+
+    /* ── DETAIL PANEL ── */
+    #detail-panel {
+      position: fixed;
+      right: 0; top: 0; bottom: 0;
+      width: 380px;
+      background: linear-gradient(160deg, #101728 0%, #080C18 100%);
+      border-left: 1px solid var(--border);
+      padding: 40px 28px;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      overflow-y: auto;
+    }
+    #detail-panel.open { transform: translateX(0); }
+
+    .panel-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: var(--border);
+      border: none;
+      color: var(--text);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .panel-close:hover { background: rgba(255,255,255,0.12); }
+
+    .panel-module-icon { font-size: 3rem; margin-bottom: 16px; }
+    .panel-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .panel-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-family: 'Courier New', monospace;
+      color: var(--muted);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .file-item:hover {
+      background: rgba(26,60,255,0.1);
+      border-color: rgba(26,60,255,0.3);
+      color: #fff;
+    }
+    .file-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-kt { background: #C878FF; }
+    .dot-xml { background: #3D9EFF; }
+    .dot-gradle { background: #FFB347; }
+
+    .panel-section-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--yellow);
+      margin: 24px 0 10px;
+      font-family: 'Unbounded', sans-serif;
+    }
+
+    /* ── ARCH SECTION ── */
+    .arch-diagram {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .arch-diagram::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 500px; height: 200px;
+      background: radial-gradient(ellipse, rgba(26,60,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .arch-layers {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .arch-layer {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .arch-layer:hover {
+      border-color: rgba(26,60,255,0.4);
+      background: rgba(26,60,255,0.06);
+    }
+    .arch-layer-icon { font-size: 1.4rem; }
+    .arch-layer-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+      min-width: 140px;
+    }
+    .arch-layer-detail {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .arch-arrow {
+      text-align: center;
+      color: var(--blue);
+      font-size: 1.2rem;
+      opacity: 0.5;
+    }
+
+    /* ── TABS SECTION ── */
+    .tabs-visual {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 18px 8px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s, background 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active {
+      color: var(--yellow);
+      background: rgba(255,215,0,0.05);
+      border-bottom-color: var(--yellow);
+    }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+    .tab-emoji { font-size: 1.4rem; }
+
+    .tab-content {
+      display: none;
+      padding: 32px;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .tab-content h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .tab-content p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    .feature-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .feature-chip {
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 60px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    footer a { color: var(--yellow); text-decoration: none; }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Overlay */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+    }
+    #overlay.show { display: block; }
+
+    @media (max-width: 600px) {
+      .stats-row { gap: 24px; }
+      .stat-num { font-size: 1.8rem; }
+      #detail-panel { width: 100%; }
+    }
+  </style>
 </head>
 <body>
-  <h1>Привет! Это моя Diia</h1>
-  <p>Вставь сюда ссылки на свои файлы или скрипты</p>
+
+<div id="overlay" onclick="closePanel()"></div>
+
+<!-- DETAIL PANEL -->
+<div id="detail-panel">
+  <button class="panel-close" onclick="closePanel()">✕</button>
+  <div id="panel-content"></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow glow-blue"></div>
+  <div class="hero-glow glow-yellow"></div>
+  <div class="flag-stripe">
+    <span></span><span></span>
+  </div>
+  <h1>Diia</h1>
+  <p class="hero-sub">Android Open Source · Ministry of Digital Transformation of Ukraine</p>
+  <p class="hero-desc">
+    Дія — застосунок з доступом до цифрових документів громадян та державних послуг. Написаний на Kotlin з Jetpack Compose.
+  </p>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num">1739</div>
+      <div class="stat-label">Kotlin файлів</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24</div>
+      <div class="stat-label">Модулів</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Вкладки застосунку</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- MODULES SECTION -->
+<section>
+  <p class="section-label">Архітектура</p>
+  <h2>Модулі проекту</h2>
+  <div class="modules-grid" id="modules-grid"></div>
+</section>
+
+<!-- ARCHITECTURE SECTION -->
+<section>
+  <p class="section-label">Структура</p>
+  <h2>Шари застосунку</h2>
+  <div class="arch-diagram">
+    <div class="arch-layers">
+      <div class="arch-layer">
+        <div class="arch-layer-icon">📱</div>
+        <div class="arch-layer-name">UI Layer</div>
+        <div class="arch-layer-detail">Jetpack Compose + Fragments · HomeF, FeedC, DocGalleryFCompose</div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <div class="arch-layer-icon">🧠</div>
+        <div class="arch-layer-name">ViewModel</div>
+        <div class="arch-layer-detail">HomeVM, FeedVM, BankAuthVM · StateFlow + LiveData</div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <div class="arch-layer-icon">🔗</div>
+        <div class="arch-layer-name">Navigation</div>
+        <div class="arch-layer-detail">Jetpack Navigation · NavHost, NavController, sealed classes</div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <div class="arch-layer-icon">💉</div>
+        <div class="arch-layer-name">DI</div>
+        <div class="arch-layer-detail">Hilt · @AndroidEntryPoint, @Inject, Modules</div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <div class="arch-layer-icon">🌐</div>
+        <div class="arch-layer-name">Network</div>
+        <div class="arch-layer-detail">Retrofit API interfaces · ApiFeed, ApiBankId, ApiPublicService</div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <div class="arch-layer-icon">💾</div>
+        <div class="arch-layer-name">Storage</div>
+        <div class="arch-layer-detail">diia_storage module · Room / SharedPreferences</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS SECTION -->
+<section>
+  <p class="section-label">UI</p>
+  <h2>Вкладки застосунку</h2>
+  <div class="tabs-visual">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('feed', this)">
+        <span class="tab-emoji">📰</span>Стрічка
+      </button>
+      <button class="tab-btn" onclick="switchTab('docs', this)">
+        <span class="tab-emoji">🪪</span>Документи
+      </button>
+      <button class="tab-btn" onclick="switchTab('services', this)">
+        <span class="tab-emoji">⚙️</span>Послуги
+      </button>
+      <button class="tab-btn" onclick="switchTab('menu', this)">
+        <span class="tab-emoji">☰</span>Меню
+      </button>
+    </div>
+    <div class="tab-content active" id="tab-feed">
+      <h3>Стрічка новин (Feed)</h3>
+      <p>Головний екран із персоналізованими новинами, сповіщеннями від держави та актуальними подіями. Підтримує deep links та QR-сканер.</p>
+      <div class="feature-list">
+        <span class="feature-chip">FeedVM.kt</span>
+        <span class="feature-chip">FeedC.kt</span>
+        <span class="feature-chip">FeedGraphBuilder.kt</span>
+        <span class="feature-chip">ApiFeed.kt</span>
+        <span class="feature-chip">PullNotifications</span>
+        <span class="feature-chip">Deep Links</span>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-docs">
+      <h3>Цифрові документи</h3>
+      <p>Галерея документів з анімованим фоном. Підтримує посвідчення водія, паспорт, ІПН та інші. Реалізовано стекування документів та зміна порядку.</p>
+      <div class="feature-list">
+        <span class="feature-chip">DocGalleryFCompose.kt</span>
+        <span class="feature-chip">doc_driver_license</span>
+        <span class="feature-chip">Stack docs</span>
+        <span class="feature-chip">PDF export</span>
+        <span class="feature-chip">QR / Barcode</span>
+        <span class="feature-chip">NFC scanning</span>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-services">
+      <h3>Державні послуги</h3>
+      <p>Каталог публічних сервісів із категоріями. Пошук послуг, навігація до окремих сервісів, інтеграція з вебвью.</p>
+      <div class="feature-list">
+        <span class="feature-chip">publicservice module</span>
+        <span class="feature-chip">PublicServicesCategoriesNavGraph</span>
+        <span class="feature-chip">ps_criminal_cert</span>
+        <span class="feature-chip">Search</span>
+        <span class="feature-chip">WebView</span>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-menu">
+      <h3>Меню та налаштування</h3>
+      <p>Профіль, налаштування, FAQ, сесії, підпис, сповіщення та вихід з акаунту. Підтримка DiiaID та безпечних транзакцій.</p>
+      <div class="feature-list">
+        <span class="feature-chip">menu module</span>
+        <span class="feature-chip">settings module</span>
+        <span class="feature-chip">FAQ</span>
+        <span class="feature-chip">DiiaID</span>
+        <span class="feature-chip">Sign history</span>
+        <span class="feature-chip">Biometric</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Diia Open Source · <a href="https://github.com/diia-open-source/android-diia" target="_blank">GitHub</a> · <a href="https://diia.gov.ua" target="_blank">diia.gov.ua</a></p>
+  <p style="margin-top:8px;">Міністерство цифрової трансформації України 🇺🇦</p>
+</footer>
+
+<script>
+  const modules = [
+    {
+      id: 'home', icon: '🏠', name: 'home', tag: 'ui', tagLabel: 'UI',
+      desc: 'Головний фрагмент з навігацією між вкладками, анімованим фоном (Lottie) та BottomBar.',
+      files: [
+        { name: 'HomeF.kt', type: 'kt' }, { name: 'HomeVM.kt', type: 'kt' },
+        { name: 'HomeActions.kt', type: 'kt' }, { name: 'HomeScreenComposeMapper.kt', type: 'kt' }
+      ],
+      details: 'Compose-based Fragment що хостить NavHost з 4 графами навігації. Анімований градієнтний фон через Lottie. Scaffold + BottomBar + WindowInsets.'
+    },
+    {
+      id: 'feed', icon: '📰', name: 'feed', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Стрічка персоналізованих новин, push/pull сповіщення, QR-сканер.',
+      files: [
+        { name: 'FeedVM.kt', type: 'kt' }, { name: 'FeedC.kt', type: 'kt' },
+        { name: 'FeedGraphBuilder.kt', type: 'kt' }, { name: 'ApiFeed.kt', type: 'kt' }
+      ],
+      details: 'ViewModel зі StateFlow, lazy load статей, підтримка deep links та pull notifications. Навігація через sealed class FeedHomeNavigation.'
+    },
+    {
+      id: 'documents', icon: '🪪', name: 'documents', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Галерея цифрових документів зі стекуванням, QR/Barcode та PDF-експортом.',
+      files: [
+        { name: 'DocGalleryFCompose.kt', type: 'kt' }, { name: 'DocGalleryC.kt', type: 'kt' },
+        { name: 'DocVM.kt', type: 'kt' }, { name: 'RootDocVm.kt', type: 'kt' }
+      ],
+      details: 'Compose UI з пагінацією документів, ViewPager2, анімаціями. Підтримка стеків (один тип — кілька документів), зміна порядку, контекстне меню.'
+    },
+    {
+      id: 'auth_bankid', icon: '🏦', name: 'auth_bankid', tag: 'auth', tagLabel: 'Auth',
+      desc: 'Авторизація через BankID НБУ: вибір банку, підключення через Privat24 і monobank.',
+      files: [
+        { name: 'BankSelectionF.kt', type: 'kt' }, { name: 'BankAuthVM.kt', type: 'kt' },
+        { name: 'ApiBankId.kt', type: 'kt' }, { name: 'BankIdModule.kt', type: 'kt' }
+      ],
+      details: 'Список банків з пошуком, OAuth-flow через WebView. VerificationMethodBankId, VerificationMethodPrivat, VerificationMethodMono.'
+    },
+    {
+      id: 'login', icon: '🔐', name: 'login', tag: 'auth', tagLabel: 'Auth',
+      desc: 'Екран входу з вибором методу авторизації (BankID та ін.).',
+      files: [
+        { name: 'LoginF.kt', type: 'kt' }
+      ],
+      details: 'Compose-based login screen з переліком доступних методів авторизації. Інтегрується з bank_id та biometric модулями.'
+    },
+    {
+      id: 'pin', icon: '🔢', name: 'pin', tag: 'auth', tagLabel: 'Auth',
+      desc: 'PIN-код та біометрична аутентифікація для захисту додатку.',
+      files: [],
+      details: 'Числова клавіатура для введення PIN-коду. Інтеграція з biometric модулем для fingerprint/face unlock.'
+    },
+    {
+      id: 'biometric', icon: '👆', name: 'biometric', tag: 'auth', tagLabel: 'Auth',
+      desc: 'Біометрична автентифікація (відбиток пальця, обличчя).',
+      files: [],
+      details: 'Делегат WithBiometric для використання AndroidX Biometric API в різних частинах застосунку.'
+    },
+    {
+      id: 'ui_base', icon: '🎨', name: 'ui_base', tag: 'ui', tagLabel: 'UI',
+      desc: '212+ Compose-компонентів: атоми, молекули, організми. Design System Diia.',
+      files: [
+        { name: 'atom/', type: 'xml' }, { name: 'molecule/', type: 'xml' },
+        { name: 'organism/', type: 'xml' }, { name: 'DiiaResourceIcon.kt', type: 'kt' }
+      ],
+      details: 'Повна дизайн-система з компонентами Button, Input, Checkbox, Radio, Progress, Pager, Status тощо. Всі компоненти написані на Jetpack Compose.'
+    },
+    {
+      id: 'publicservice', icon: '⚙️', name: 'publicservice', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Каталог державних послуг із категоріями та пошуком.',
+      files: [
+        { name: 'PublicServicesCategoriesNavGraph.kt', type: 'kt' }
+      ],
+      details: 'Категорії послуг, перехід до окремих сервісів, пошук, інтеграція з WebView для веб-based послуг.'
+    },
+    {
+      id: 'menu', icon: '☰', name: 'menu', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Профіль, налаштування, FAQ, DiiaID, підпис, сесії.',
+      files: [
+        { name: 'ScreenMenuRoute.kt', type: 'kt' }, { name: 'menuNavGraph.kt', type: 'kt' }
+      ],
+      details: 'Sealed class MenuHomeNavigation описує всі можливі переходи з меню. Підтримка виходу, DiiaID, sign history.'
+    },
+    {
+      id: 'notifications', icon: '🔔', name: 'notifications', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Push та pull сповіщення від держави.',
+      files: [],
+      details: 'Канал сповіщень "Повідомлення", обробка PullNotificationItemSelection, навігація за типом ресурсу.'
+    },
+    {
+      id: 'scanner', icon: '📸', name: 'scanner', tag: 'feature', tagLabel: 'Feature',
+      desc: 'QR-код та MRZ сканер для документів та послуг.',
+      files: [],
+      details: 'Camera-based QR scanning, MRZ scanning для машиночитаємих зон паспортів. Інтегрований у Feed та Documents.'
+    },
+    {
+      id: 'core', icon: '⚙️', name: 'core', tag: 'core', tagLabel: 'Core',
+      desc: 'Базові моделі, утиліти, делегати та контракти для всіх модулів.',
+      files: [
+        { name: 'models/', type: 'kt' }, { name: 'util/', type: 'kt' },
+        { name: 'ConsumableString.kt', type: 'kt' }
+      ],
+      details: 'ConsumableString, BackStackEvent, WithPermission, WithCrashlytics делегати. Базові навігаційні контракти.'
+    },
+    {
+      id: 'diia_storage', icon: '💾', name: 'diia_storage', tag: 'data', tagLabel: 'Data',
+      desc: 'Локальне сховище: Room, SharedPreferences та абстракції над ними.',
+      files: [],
+      details: 'Персистентне зберігання токенів, налаштувань, кешу документів.'
+    },
+    {
+      id: 'analytics', icon: '📊', name: 'analytics', tag: 'core', tagLabel: 'Core',
+      desc: 'Аналітика подій та краш-репортинг (Crashlytics).',
+      files: [],
+      details: 'WithCrashlytics делегат для логування помилок. Трекінг user-events у різних модулях.'
+    },
+    {
+      id: 'payment', icon: '💳', name: 'payment', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Оплата послуг: Visa, Prostir, інші платіжні методи.',
+      files: [
+        { name: 'ic_payment_logo_visa.xml', type: 'xml' },
+        { name: 'ic_card_type_prostir.xml', type: 'xml' }
+      ],
+      details: 'Екран оплати з підтримкою різних платіжних систем. Інтегрований у publicservice flow.'
+    },
+    {
+      id: 'verification', icon: '✅', name: 'verification', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Верифікація особи через документи та NFC.',
+      files: [],
+      details: 'NFC читання документів з чіпом, MRZ parsing. Підтримка різних методів верифікації.'
+    },
+    {
+      id: 'settings', icon: '🛠️', name: 'settings', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Налаштування застосунку: мова, сповіщення, безпека.',
+      files: [],
+      details: 'Екрани налаштувань з перемикачами, посилання на сесії, можливість share with friends.'
+    },
+    {
+      id: 'faq', icon: '❓', name: 'faq', tag: 'feature', tagLabel: 'Feature',
+      desc: 'FAQ — питання та відповіді для користувачів.',
+      files: [],
+      details: 'Список поширених питань, пошук, accordion компоненти.'
+    },
+    {
+      id: 'search', icon: '🔍', name: 'search', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Пошук документів, послуг та контенту.',
+      files: [],
+      details: 'Глобальний пошук з підтримкою кирилиці. Фільтрація та підсвічування результатів.'
+    },
+    {
+      id: 'web', icon: '🌐', name: 'web', tag: 'feature', tagLabel: 'Feature',
+      desc: 'WebView для рендерингу веб-послуг та зовнішніх посилань.',
+      files: [],
+      details: 'Вбудований браузер для послуг, що надаються через веб-інтерфейс. Підтримка JavaScript bridge.'
+    },
+    {
+      id: 'doc_driver_license', icon: '🚗', name: 'doc_driver_license', tag: 'data', tagLabel: 'Data',
+      desc: 'Посвідчення водія: відображення, верифікація, QR-код.',
+      files: [],
+      details: 'Окремий модуль для водійського посвідчення. Compose UI карточки з QR/Barcode.'
+    },
+    {
+      id: 'address_search', icon: '📍', name: 'address_search', tag: 'feature', tagLabel: 'Feature',
+      desc: 'Пошук і вибір адреси для державних послуг.',
+      files: [],
+      details: 'Autocomplete пошук адрес для форм. Інтегрований у реєстраційні потоки.'
+    },
+    {
+      id: 'opensource', icon: '📦', name: 'opensource', tag: 'core', tagLabel: 'Core',
+      desc: 'Точка входу застосунку: MainActivity, Hilt application, Gplay/Huawei variants.',
+      files: [
+        { name: 'MainActivity.kt', type: 'kt' }, { name: 'MainActivityVM.kt', type: 'kt' },
+        { name: 'VendorActivity.kt', type: 'kt' }
+      ],
+      details: '@HiltAndroidApp Application клас, MainActivity з NavController, підтримка двох флейворів: Google Play і Huawei AppGallery.'
+    }
+  ];
+
+  const tagColors = { ui: 'tag-ui', auth: 'tag-auth', data: 'tag-data', core: 'tag-core', feature: 'tag-feature' };
+
+  const grid = document.getElementById('modules-grid');
+  modules.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.innerHTML = `
+      <div class="module-icon">${m.icon}</div>
+      <div class="module-name">${m.name}</div>
+      <div class="module-desc">${m.desc}</div>
+      <span class="module-tag ${tagColors[m.tag]}">${m.tagLabel}</span>
+    `;
+    card.addEventListener('click', () => openPanel(m, card));
+    grid.appendChild(card);
+  });
+
+  let activeCard = null;
+
+  function openPanel(m, card) {
+    if (activeCard) activeCard.classList.remove('active');
+    activeCard = card;
+    card.classList.add('active');
+
+    const fileHtml = m.files.length > 0 ? `
+      <div class="panel-section-title">Ключові файли</div>
+      <div class="file-list">
+        ${m.files.map(f => `
+          <div class="file-item">
+            <span class="file-dot dot-${f.type}"></span>
+            ${f.name}
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    document.getElementById('panel-content').innerHTML = `
+      <div class="panel-module-icon">${m.icon}</div>
+      <div class="panel-title">${m.name}</div>
+      <div class="panel-desc">${m.details}</div>
+      ${fileHtml}
+      <div class="panel-section-title">Категорія</div>
+      <span class="module-tag ${tagColors[m.tag]}">${m.tagLabel}</span>
+    `;
+
+    document.getElementById('detail-panel').classList.add('open');
+    document.getElementById('overlay').classList.add('show');
+  }
+
+  function closePanel() {
+    document.getElementById('detail-panel').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+    if (activeCard) {
+      activeCard.classList.remove('active');
+      activeCard = null;
+    }
+  }
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+</script>
 </body>
 </html>
